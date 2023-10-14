@@ -22,8 +22,8 @@ func prepareInList(data string, params Params) (string, error) {
 	builder, count := builderpool.Get(), 0
 	defer builderpool.Release(builder)
 
-	var ts, te, act, start, end int
-	cs, p, pe, eof := 0, 0, len(data), len(data)
+	var start, end int
+	cs, p, pe := 0, 0, len(data)
 
 //line prepare_in_list.go:33
 	{
@@ -756,8 +756,6 @@ func prepareInList(data string, params Params) (string, error) {
 //line prepare_in_list.rl:66
 
 	builder.WriteString(data[count:])
-
-	_, _, _, _ = ts, te, act, eof
 
 	return builder.String(), nil
 }
