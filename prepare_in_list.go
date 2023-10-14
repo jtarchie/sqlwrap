@@ -22,15 +22,18 @@ func prepareInList(data string, params Params) (string, error) {
 	builder, count := builderpool.Get(), 0
 	defer builderpool.Release(builder)
 
-	var start, end int
+	var (
+		start, end int
+		paramName  string
+	)
 	cs, p, pe := 0, 0, len(data)
 
-//line prepare_in_list.go:33
+//line prepare_in_list.go:36
 	{
 		cs = prepare_in_list_start
 	}
 
-//line prepare_in_list.go:38
+//line prepare_in_list.go:41
 	{
 		if p == pe {
 			goto _test_eof
@@ -180,7 +183,7 @@ func prepareInList(data string, params Params) (string, error) {
 		}
 		goto st0
 	tr7:
-//line prepare_in_list.rl:23
+//line prepare_in_list.rl:26
 		start = p
 		goto st7
 	st7:
@@ -188,13 +191,13 @@ func prepareInList(data string, params Params) (string, error) {
 			goto _test_eof7
 		}
 	st_case_7:
-//line prepare_in_list.go:196
+//line prepare_in_list.go:199
 		if data[p] == 32 {
 			goto st9
 		}
 		goto st8
 	tr17:
-//line prepare_in_list.rl:23
+//line prepare_in_list.rl:26
 		start = p
 		goto st8
 	st8:
@@ -202,7 +205,7 @@ func prepareInList(data string, params Params) (string, error) {
 			goto _test_eof8
 		}
 	st_case_8:
-//line prepare_in_list.go:210
+//line prepare_in_list.go:213
 		switch data[p] {
 		case 32:
 			goto tr10
@@ -211,12 +214,12 @@ func prepareInList(data string, params Params) (string, error) {
 		}
 		goto st8
 	tr10:
-//line prepare_in_list.rl:24
+//line prepare_in_list.rl:27
 
 		{
 			end = p
 
-			paramName := data[start+1 : end]
+			paramName = data[start+1 : end]
 			if _, ok := params[paramName]; !ok {
 				return "", fmt.Errorf("could not find param for IN list %q", paramName)
 			}
@@ -252,7 +255,7 @@ func prepareInList(data string, params Params) (string, error) {
 			goto _test_eof9
 		}
 	st_case_9:
-//line prepare_in_list.go:260
+//line prepare_in_list.go:263
 		switch data[p] {
 		case 32:
 			goto tr10
@@ -265,16 +268,16 @@ func prepareInList(data string, params Params) (string, error) {
 		}
 		goto st8
 	tr25:
-//line prepare_in_list.rl:23
+//line prepare_in_list.rl:26
 		start = p
 		goto st16
 	tr11:
-//line prepare_in_list.rl:24
+//line prepare_in_list.rl:27
 
 		{
 			end = p
 
-			paramName := data[start+1 : end]
+			paramName = data[start+1 : end]
 			if _, ok := params[paramName]; !ok {
 				return "", fmt.Errorf("could not find param for IN list %q", paramName)
 			}
@@ -310,7 +313,7 @@ func prepareInList(data string, params Params) (string, error) {
 			goto _test_eof16
 		}
 	st_case_16:
-//line prepare_in_list.go:318
+//line prepare_in_list.go:321
 		switch data[p] {
 		case 32:
 			goto tr19
@@ -319,12 +322,12 @@ func prepareInList(data string, params Params) (string, error) {
 		}
 		goto st16
 	tr19:
-//line prepare_in_list.rl:24
+//line prepare_in_list.rl:27
 
 		{
 			end = p
 
-			paramName := data[start+1 : end]
+			paramName = data[start+1 : end]
 			if _, ok := params[paramName]; !ok {
 				return "", fmt.Errorf("could not find param for IN list %q", paramName)
 			}
@@ -360,7 +363,7 @@ func prepareInList(data string, params Params) (string, error) {
 			goto _test_eof17
 		}
 	st_case_17:
-//line prepare_in_list.go:368
+//line prepare_in_list.go:371
 		switch data[p] {
 		case 32:
 			goto tr19
@@ -401,12 +404,12 @@ func prepareInList(data string, params Params) (string, error) {
 		}
 		goto st16
 	tr22:
-//line prepare_in_list.rl:24
+//line prepare_in_list.rl:27
 
 		{
 			end = p
 
-			paramName := data[start+1 : end]
+			paramName = data[start+1 : end]
 			if _, ok := params[paramName]; !ok {
 				return "", fmt.Errorf("could not find param for IN list %q", paramName)
 			}
@@ -442,7 +445,7 @@ func prepareInList(data string, params Params) (string, error) {
 			goto _test_eof20
 		}
 	st_case_20:
-//line prepare_in_list.go:450
+//line prepare_in_list.go:453
 		switch data[p] {
 		case 32:
 			goto tr22
@@ -471,12 +474,12 @@ func prepareInList(data string, params Params) (string, error) {
 		}
 		goto st16
 	tr24:
-//line prepare_in_list.rl:24
+//line prepare_in_list.rl:27
 
 		{
 			end = p
 
-			paramName := data[start+1 : end]
+			paramName = data[start+1 : end]
 			if _, ok := params[paramName]; !ok {
 				return "", fmt.Errorf("could not find param for IN list %q", paramName)
 			}
@@ -512,7 +515,7 @@ func prepareInList(data string, params Params) (string, error) {
 			goto _test_eof22
 		}
 	st_case_22:
-//line prepare_in_list.go:520
+//line prepare_in_list.go:523
 		switch data[p] {
 		case 32:
 			goto tr24
@@ -555,12 +558,12 @@ func prepareInList(data string, params Params) (string, error) {
 		}
 		goto st8
 	tr14:
-//line prepare_in_list.rl:24
+//line prepare_in_list.rl:27
 
 		{
 			end = p
 
-			paramName := data[start+1 : end]
+			paramName = data[start+1 : end]
 			if _, ok := params[paramName]; !ok {
 				return "", fmt.Errorf("could not find param for IN list %q", paramName)
 			}
@@ -596,7 +599,7 @@ func prepareInList(data string, params Params) (string, error) {
 			goto _test_eof12
 		}
 	st_case_12:
-//line prepare_in_list.go:604
+//line prepare_in_list.go:607
 		switch data[p] {
 		case 32:
 			goto tr14
@@ -625,12 +628,12 @@ func prepareInList(data string, params Params) (string, error) {
 		}
 		goto st8
 	tr16:
-//line prepare_in_list.rl:24
+//line prepare_in_list.rl:27
 
 		{
 			end = p
 
-			paramName := data[start+1 : end]
+			paramName = data[start+1 : end]
 			if _, ok := params[paramName]; !ok {
 				return "", fmt.Errorf("could not find param for IN list %q", paramName)
 			}
@@ -666,7 +669,7 @@ func prepareInList(data string, params Params) (string, error) {
 			goto _test_eof14
 		}
 	st_case_14:
-//line prepare_in_list.go:674
+//line prepare_in_list.go:677
 		switch data[p] {
 		case 32:
 			goto tr16
@@ -753,7 +756,7 @@ func prepareInList(data string, params Params) (string, error) {
 		}
 	}
 
-//line prepare_in_list.rl:66
+//line prepare_in_list.rl:69
 
 	builder.WriteString(data[count:])
 

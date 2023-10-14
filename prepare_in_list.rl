@@ -16,7 +16,10 @@ func prepareInList(data string, params Params) (string, error) {
 	builder, count := builderpool.Get(), 0
 	defer builderpool.Release(builder)
 
-  var start, end int
+  var (
+    start, end int
+    paramName string
+  )
   cs, p, pe := 0, 0, len(data)
 
   %%{
@@ -25,7 +28,7 @@ func prepareInList(data string, params Params) (string, error) {
       {
         end = p
 
-        paramName := data[start+1: end]
+        paramName = data[start+1: end]
         if _, ok := params[paramName]; !ok {
           return "", fmt.Errorf("could not find param for IN list %q", paramName)
         }
