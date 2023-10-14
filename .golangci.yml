@@ -12,6 +12,7 @@ linters:
   - revive
   - funlen
   - goerr113
+  - cyclop
 
   # linters deprecated
   - deadcode

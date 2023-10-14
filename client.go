@@ -82,10 +82,88 @@ func (c *Client) Get(
 
 	err := row.Err()
 	if err != nil {
-		return fmt.Errorf("could not execute query: %w", err)
+		return fmt.Errorf("could not execute query for result: %w", err)
 	}
 
 	err = row.Scan(destination)
+	if err != nil {
+		return fmt.Errorf("could not scan result: %w", err)
+	}
+
+	return nil
+}
+
+func (c *Client) Select(
+	ctx context.Context,
+	destination *[]string,
+	query string,
+	params map[string]interface{},
+) error {
+	builder, count := &strings.Builder{}, 0
+
+	matches := inListRegex.FindAllStringSubmatchIndex(query, -1)
+	for _, match := range matches {
+		start, end := match[2], match[3]
+
+		paramName := query[start+1 : end]
+		if _, ok := params[paramName]; !ok {
+			return fmt.Errorf("could not find param for IN list %q", paramName)
+		}
+
+		builder.WriteString(query[count:start])
+
+		values, ok := params[paramName].([]string)
+		if !ok {
+			return fmt.Errorf("could not read param %q as array", paramName)
+		}
+
+		for index, value := range values {
+			indexParamName := paramName + strconv.Itoa(index)
+
+			builder.WriteByte(query[start])
+			builder.WriteString(indexParamName)
+
+			if index < len(values)-1 {
+				builder.WriteByte(',')
+			}
+
+			params[indexParamName] = value
+		}
+
+		delete(params, paramName)
+
+		count = end
+	}
+
+	builder.WriteString(query[count:])
+	query = builder.String()
+
+	names := []any{}
+	for name, value := range params {
+		names = append(names, sql.Named(name, value))
+	}
+
+	rows, err := c.DB.QueryContext(ctx, query, names...)
+	if err != nil {
+		return fmt.Errorf("could not execute for results: %w", err)
+	}
+
+	if rows.Err() != nil {
+		return fmt.Errorf("could not execute for results: %w", err)
+	}
+
+	defer rows.Close()
+
+	var value string
+	for rows.Next() {
+		err := rows.Scan(&value)
+		if err != nil {
+			return fmt.Errorf("could not scan for result: %w", err)
+		}
+
+		*destination = append(*destination, value)
+	}
+
 	if err != nil {
 		return fmt.Errorf("could not scan result: %w", err)
 	}
