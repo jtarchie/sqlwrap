@@ -49,10 +49,9 @@ func In(query string, params Params) (string, error) {
 	return query, nil
 }
 
-func Get[T comparable](
-	client *Client,
+func (c *Client) Get(
 	ctx context.Context,
-	destination T,
+	destination interface{},
 	query string,
 	params Params,
 ) error {
@@ -68,7 +67,7 @@ func Get[T comparable](
 		names = append(names, sql.Named(name, value))
 	}
 
-	row := client.DB.QueryRowContext(ctx, query, names...)
+	row := c.DB.QueryRowContext(ctx, query, names...)
 
 	err = row.Err()
 	if err != nil {
@@ -81,21 +80,6 @@ func Get[T comparable](
 	}
 
 	return nil
-}
-
-func (c *Client) Get(
-	ctx context.Context,
-	destination interface{},
-	query string,
-	params Params,
-) error {
-	return Get(
-		c,
-		ctx,
-		destination,
-		query,
-		params,
-	)
 }
 
 func (c *Client) Select(

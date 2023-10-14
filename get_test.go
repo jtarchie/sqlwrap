@@ -99,22 +99,4 @@ var _ = Describe("Get", func() {
 		)
 		Expect(err).To(HaveOccurred())
 	})
-
-	When("using the global func", func() {
-		It("bind with named parameters", func() {
-			var firstName string
-
-			err := sqlwrap.Get(
-				client,
-				context.Background(),
-				&firstName,
-				"SELECT first_name FROM people WHERE email = :email",
-				map[string]interface{}{
-					"email": "bob@smith.com",
-				},
-			)
-			Expect(err).NotTo(HaveOccurred())
-			Expect(firstName).To(Equal("Bob"))
-		})
-	})
 })
