@@ -5,6 +5,8 @@ import (
 	"database/sql"
 	"strings"
 	"testing"
+
+	"github.com/jtarchie/sqlwrap"
 )
 
 var err error //nolint
@@ -27,11 +29,12 @@ func BenchmarkGet(b *testing.B) {
 			)
 		}
 	})
-	b.Run(rxpad("get with generic"), func(b *testing.B) {
+	b.Run(rxpad("get (generic)"), func(b *testing.B) {
 		var firstName string
 
 		for i := 0; i < b.N; i++ {
-			err = client.Get(
+			err = sqlwrap.Get(
+				client,
 				context.Background(),
 				&firstName,
 				"SELECT first_name FROM people WHERE email = 'bob@example.com'",
@@ -53,11 +56,41 @@ func BenchmarkGet(b *testing.B) {
 			)
 		}
 	})
+	b.Run(rxpad("get (generic) with equals"), func(b *testing.B) {
+		var firstName string
+
+		for i := 0; i < b.N; i++ {
+			err = sqlwrap.Get(
+				client,
+				context.Background(),
+				&firstName,
+				"SELECT first_name FROM people WHERE email = :email",
+				map[string]interface{}{
+					"email": "bob@smith.com",
+				},
+			)
+		}
+	})
 	b.Run(rxpad("get with IN"), func(b *testing.B) {
 		var firstName string
 
 		for i := 0; i < b.N; i++ {
 			err = client.Get(
+				context.Background(),
+				&firstName,
+				"SELECT first_name FROM people WHERE email IN (:email)",
+				map[string]interface{}{
+					"email": []string{"bob@smith.com"},
+				},
+			)
+		}
+	})
+	b.Run(rxpad("get (generic) with IN"), func(b *testing.B) {
+		var firstName string
+
+		for i := 0; i < b.N; i++ {
+			err = sqlwrap.Get(
+				client,
 				context.Background(),
 				&firstName,
 				"SELECT first_name FROM people WHERE email IN (:email)",
