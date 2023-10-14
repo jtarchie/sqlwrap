@@ -31,10 +31,14 @@ func Open(driver string, connection string) (*Client, error) {
 var inListRegex = regexp.MustCompile(`(?im)\s+IN\s+\(\s*([@$:]\p{L}+)\s*\)`)
 
 func prepareInList(query string, params Params) (string, error) {
+	matches := inListRegex.FindAllStringSubmatchIndex(query, -1)
+	if len(matches) == 0 {
+		return query, nil
+	}
+
 	builder, count := builderpool.Get(), 0
 	defer builderpool.Release(builder)
 
-	matches := inListRegex.FindAllStringSubmatchIndex(query, -1)
 	for _, match := range matches {
 		start, end := match[2], match[3]
 
