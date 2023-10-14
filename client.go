@@ -27,6 +27,19 @@ func Open(driver string, connection string) (*Client, error) {
 	}, nil
 }
 
+func In(query string, params Params) (string, error) {
+	if len(params) == 0 {
+		return query, nil
+	}
+
+	query, err := prepareInList(query, params)
+	if err != nil {
+		return "", fmt.Errorf("could not prepare query for IN list: %w", err)
+	}
+
+	return query, nil
+}
+
 func Get[T comparable](
 	client *Client,
 	ctx context.Context,
@@ -36,11 +49,9 @@ func Get[T comparable](
 ) error {
 	var err error
 
-	if len(params) > 0 {
-		query, err = prepareInList(query, params)
-		if err != nil {
-			return fmt.Errorf("could not prepare query for IN list: %w", err)
-		}
+	query, err = In(query, params)
+	if err != nil {
+		return fmt.Errorf("could not setup IN list for GET: %w", err)
 	}
 
 	names := make([]any, 0, len(params))
