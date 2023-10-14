@@ -4,11 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"regexp"
-	"strconv"
 
 	_ "github.com/mattn/go-sqlite3"
-	"github.com/nasa9084/go-builderpool"
 )
 
 type Client struct {
@@ -16,6 +13,8 @@ type Client struct {
 }
 
 type Params map[string]interface{}
+
+//go:generate ragel -e -G2 -Z prepare_in_list.rl
 
 func Open(driver string, connection string) (*Client, error) {
 	database, err := sql.Open(driver, connection)
@@ -28,54 +27,49 @@ func Open(driver string, connection string) (*Client, error) {
 	}, nil
 }
 
-var inListRegex = regexp.MustCompile(`(?im)\s+IN\s+\(\s*([@$:]\p{L}+)\s*\)`)
+// var inListRegex = regexp.MustCompile(`(?im)\s+IN\s+\(\s*([@$:]\p{L}+)\s*\)`)
 
-func prepareInList(query string, params Params) (string, error) {
-	matches := inListRegex.FindAllStringSubmatchIndex(query, -1)
-	if len(matches) == 0 {
-		return query, nil
-	}
+// func prepareInList(query string, params Params) (string, error) {
+// 	builder, count := builderpool.Get(), 0
+// 	defer builderpool.Release(builder)
 
-	builder, count := builderpool.Get(), 0
-	defer builderpool.Release(builder)
+// 	for _, match := range matches {
+// 		start, end := match[2], match[3]
 
-	for _, match := range matches {
-		start, end := match[2], match[3]
+// 		paramName := query[start+1 : end]
+// 		if _, ok := params[paramName]; !ok {
+// 			return "", fmt.Errorf("could not find param for IN list %q", paramName)
+// 		}
 
-		paramName := query[start+1 : end]
-		if _, ok := params[paramName]; !ok {
-			return "", fmt.Errorf("could not find param for IN list %q", paramName)
-		}
+// 		builder.WriteString(query[count:start])
 
-		builder.WriteString(query[count:start])
+// 		values, ok := params[paramName].([]string)
+// 		if !ok {
+// 			return "", fmt.Errorf("could not read param %q as array", paramName)
+// 		}
 
-		values, ok := params[paramName].([]string)
-		if !ok {
-			return "", fmt.Errorf("could not read param %q as array", paramName)
-		}
+// 		for index, value := range values {
+// 			indexParamName := paramName + strconv.Itoa(index)
 
-		for index, value := range values {
-			indexParamName := paramName + strconv.Itoa(index)
+// 			builder.WriteByte(query[start])
+// 			builder.WriteString(indexParamName)
 
-			builder.WriteByte(query[start])
-			builder.WriteString(indexParamName)
+// 			if index < len(values)-1 {
+// 				builder.WriteByte(',')
+// 			}
 
-			if index < len(values)-1 {
-				builder.WriteByte(',')
-			}
+// 			params[indexParamName] = value
+// 		}
 
-			params[indexParamName] = value
-		}
+// 		delete(params, paramName)
 
-		delete(params, paramName)
+// 		count = end
+// 	}
 
-		count = end
-	}
+// 	builder.WriteString(query[count:])
 
-	builder.WriteString(query[count:])
-
-	return builder.String(), nil
-}
+// 	return builder.String(), nil
+// }
 
 func (c *Client) Get(
 	ctx context.Context,
