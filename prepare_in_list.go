@@ -223,7 +223,7 @@ func prepareInList(data string, params Params) (string, error) {
 
 			builder.WriteString(data[count:start])
 
-			values, ok := params[paramName].([]string)
+			values, ok := params[paramName].(Values)
 			if !ok {
 				return "", fmt.Errorf("could not read param %q as array", paramName)
 			}
@@ -281,7 +281,7 @@ func prepareInList(data string, params Params) (string, error) {
 
 			builder.WriteString(data[count:start])
 
-			values, ok := params[paramName].([]string)
+			values, ok := params[paramName].(Values)
 			if !ok {
 				return "", fmt.Errorf("could not read param %q as array", paramName)
 			}
@@ -331,7 +331,7 @@ func prepareInList(data string, params Params) (string, error) {
 
 			builder.WriteString(data[count:start])
 
-			values, ok := params[paramName].([]string)
+			values, ok := params[paramName].(Values)
 			if !ok {
 				return "", fmt.Errorf("could not read param %q as array", paramName)
 			}
@@ -413,7 +413,7 @@ func prepareInList(data string, params Params) (string, error) {
 
 			builder.WriteString(data[count:start])
 
-			values, ok := params[paramName].([]string)
+			values, ok := params[paramName].(Values)
 			if !ok {
 				return "", fmt.Errorf("could not read param %q as array", paramName)
 			}
@@ -483,7 +483,7 @@ func prepareInList(data string, params Params) (string, error) {
 
 			builder.WriteString(data[count:start])
 
-			values, ok := params[paramName].([]string)
+			values, ok := params[paramName].(Values)
 			if !ok {
 				return "", fmt.Errorf("could not read param %q as array", paramName)
 			}
@@ -567,7 +567,7 @@ func prepareInList(data string, params Params) (string, error) {
 
 			builder.WriteString(data[count:start])
 
-			values, ok := params[paramName].([]string)
+			values, ok := params[paramName].(Values)
 			if !ok {
 				return "", fmt.Errorf("could not read param %q as array", paramName)
 			}
@@ -637,7 +637,7 @@ func prepareInList(data string, params Params) (string, error) {
 
 			builder.WriteString(data[count:start])
 
-			values, ok := params[paramName].([]string)
+			values, ok := params[paramName].(Values)
 			if !ok {
 				return "", fmt.Errorf("could not read param %q as array", paramName)
 			}

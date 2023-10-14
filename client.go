@@ -12,7 +12,10 @@ type Client struct {
 	*sql.DB
 }
 
-type Params map[string]interface{}
+type (
+	Params map[string]any
+	Values []any
+)
 
 //go:generate ragel -e -G2 -Z prepare_in_list.rl
 
@@ -32,9 +35,15 @@ func In(query string, params Params) (string, error) {
 		return query, nil
 	}
 
-	query, err := prepareInList(query, params)
-	if err != nil {
-		return "", fmt.Errorf("could not prepare query for IN list: %w", err)
+	for _, value := range params {
+		if _, ok := value.(Values); ok {
+			query, err := prepareInList(query, params)
+			if err != nil {
+				return "", fmt.Errorf("could not prepare query for IN list: %w", err)
+			}
+
+			return query, nil
+		}
 	}
 
 	return query, nil

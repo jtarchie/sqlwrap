@@ -80,7 +80,7 @@ func BenchmarkGet(b *testing.B) {
 				&firstName,
 				"SELECT first_name FROM people WHERE email IN (:email)",
 				map[string]interface{}{
-					"email": []string{"bob@smith.com"},
+					"email": sqlwrap.Values{"bob@smith.com"},
 				},
 			)
 		}
@@ -95,7 +95,7 @@ func BenchmarkGet(b *testing.B) {
 				&firstName,
 				"SELECT first_name FROM people WHERE email IN (:email)",
 				map[string]interface{}{
-					"email": []string{"bob@smith.com"},
+					"email": sqlwrap.Values{"bob@smith.com"},
 				},
 			)
 		}
