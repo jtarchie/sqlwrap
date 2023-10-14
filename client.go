@@ -27,69 +27,28 @@ func Open(driver string, connection string) (*Client, error) {
 	}, nil
 }
 
-// var inListRegex = regexp.MustCompile(`(?im)\s+IN\s+\(\s*([@$:]\p{L}+)\s*\)`)
-
-// func prepareInList(query string, params Params) (string, error) {
-// 	builder, count := builderpool.Get(), 0
-// 	defer builderpool.Release(builder)
-
-// 	for _, match := range matches {
-// 		start, end := match[2], match[3]
-
-// 		paramName := query[start+1 : end]
-// 		if _, ok := params[paramName]; !ok {
-// 			return "", fmt.Errorf("could not find param for IN list %q", paramName)
-// 		}
-
-// 		builder.WriteString(query[count:start])
-
-// 		values, ok := params[paramName].([]string)
-// 		if !ok {
-// 			return "", fmt.Errorf("could not read param %q as array", paramName)
-// 		}
-
-// 		for index, value := range values {
-// 			indexParamName := paramName + strconv.Itoa(index)
-
-// 			builder.WriteByte(query[start])
-// 			builder.WriteString(indexParamName)
-
-// 			if index < len(values)-1 {
-// 				builder.WriteByte(',')
-// 			}
-
-// 			params[indexParamName] = value
-// 		}
-
-// 		delete(params, paramName)
-
-// 		count = end
-// 	}
-
-// 	builder.WriteString(query[count:])
-
-// 	return builder.String(), nil
-// }
-
-func (c *Client) Get(
+func Get[T comparable](
+	client *Client,
 	ctx context.Context,
-	destination interface{},
+	destination T,
 	query string,
 	params Params,
 ) error {
 	var err error
 
-	query, err = prepareInList(query, params)
-	if err != nil {
-		return fmt.Errorf("could not prepare query for IN list: %w", err)
+	if len(params) > 0 {
+		query, err = prepareInList(query, params)
+		if err != nil {
+			return fmt.Errorf("could not prepare query for IN list: %w", err)
+		}
 	}
 
-	names := []any{}
+	names := make([]any, 0, len(params))
 	for name, value := range params {
 		names = append(names, sql.Named(name, value))
 	}
 
-	row := c.DB.QueryRowContext(ctx, query, names...)
+	row := client.DB.QueryRowContext(ctx, query, names...)
 
 	err = row.Err()
 	if err != nil {
@@ -102,6 +61,21 @@ func (c *Client) Get(
 	}
 
 	return nil
+}
+
+func (c *Client) Get(
+	ctx context.Context,
+	destination interface{},
+	query string,
+	params Params,
+) error {
+	return Get(
+		c,
+		ctx,
+		destination,
+		query,
+		params,
+	)
 }
 
 func (c *Client) Select(

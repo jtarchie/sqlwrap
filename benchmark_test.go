@@ -27,6 +27,18 @@ func BenchmarkGet(b *testing.B) {
 			)
 		}
 	})
+	b.Run(rxpad("get with generic"), func(b *testing.B) {
+		var firstName string
+
+		for i := 0; i < b.N; i++ {
+			err = client.Get(
+				context.Background(),
+				&firstName,
+				"SELECT first_name FROM people WHERE email = 'bob@example.com'",
+				map[string]interface{}{},
+			)
+		}
+	})
 	b.Run(rxpad("get with equals"), func(b *testing.B) {
 		var firstName string
 
