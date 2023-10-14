@@ -9,6 +9,7 @@ require (
 	github.com/google/go-cmp v0.5.9 // indirect
 	github.com/google/pprof v0.0.0-20210407192527-94a9f03dee38 // indirect
 	github.com/mattn/go-sqlite3 v1.14.17 // indirect
+	github.com/nasa9084/go-builderpool v0.0.0-20210914072601-0ff03b34a097 // indirect
 	github.com/onsi/ginkgo/v2 v2.13.0 // indirect
 	github.com/onsi/gomega v1.28.0 // indirect
 	golang.org/x/net v0.14.0 // indirect

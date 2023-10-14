@@ -6,14 +6,16 @@ import (
 	"fmt"
 	"regexp"
 	"strconv"
-	"strings"
 
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/nasa9084/go-builderpool"
 )
 
 type Client struct {
 	*sql.DB
 }
+
+type Params map[string]interface{}
 
 func Open(driver string, connection string) (*Client, error) {
 	database, err := sql.Open(driver, connection)
@@ -28,13 +30,9 @@ func Open(driver string, connection string) (*Client, error) {
 
 var inListRegex = regexp.MustCompile(`(?im)\s+IN\s+\(\s*([@$:]\p{L}+)\s*\)`)
 
-func (c *Client) Get(
-	ctx context.Context,
-	destination interface{},
-	query string,
-	params map[string]interface{},
-) error {
-	builder, count := &strings.Builder{}, 0
+func prepareInList(query string, params Params) (string, error) {
+	builder, count := builderpool.Get(), 0
+	defer builderpool.Release(builder)
 
 	matches := inListRegex.FindAllStringSubmatchIndex(query, -1)
 	for _, match := range matches {
@@ -42,14 +40,14 @@ func (c *Client) Get(
 
 		paramName := query[start+1 : end]
 		if _, ok := params[paramName]; !ok {
-			return fmt.Errorf("could not find param for IN list %q", paramName)
+			return "", fmt.Errorf("could not find param for IN list %q", paramName)
 		}
 
 		builder.WriteString(query[count:start])
 
 		values, ok := params[paramName].([]string)
 		if !ok {
-			return fmt.Errorf("could not read param %q as array", paramName)
+			return "", fmt.Errorf("could not read param %q as array", paramName)
 		}
 
 		for index, value := range values {
@@ -71,7 +69,22 @@ func (c *Client) Get(
 	}
 
 	builder.WriteString(query[count:])
-	query = builder.String()
+
+	return builder.String(), nil
+}
+
+func (c *Client) Get(
+	ctx context.Context,
+	destination interface{},
+	query string,
+	params Params,
+) error {
+	var err error
+
+	query, err = prepareInList(query, params)
+	if err != nil {
+		return fmt.Errorf("could not prepare query for IN list: %w", err)
+	}
 
 	names := []any{}
 	for name, value := range params {
@@ -80,7 +93,7 @@ func (c *Client) Get(
 
 	row := c.DB.QueryRowContext(ctx, query, names...)
 
-	err := row.Err()
+	err = row.Err()
 	if err != nil {
 		return fmt.Errorf("could not execute query for result: %w", err)
 	}
@@ -99,44 +112,12 @@ func (c *Client) Select(
 	query string,
 	params map[string]interface{},
 ) error {
-	builder, count := &strings.Builder{}, 0
+	var err error
 
-	matches := inListRegex.FindAllStringSubmatchIndex(query, -1)
-	for _, match := range matches {
-		start, end := match[2], match[3]
-
-		paramName := query[start+1 : end]
-		if _, ok := params[paramName]; !ok {
-			return fmt.Errorf("could not find param for IN list %q", paramName)
-		}
-
-		builder.WriteString(query[count:start])
-
-		values, ok := params[paramName].([]string)
-		if !ok {
-			return fmt.Errorf("could not read param %q as array", paramName)
-		}
-
-		for index, value := range values {
-			indexParamName := paramName + strconv.Itoa(index)
-
-			builder.WriteByte(query[start])
-			builder.WriteString(indexParamName)
-
-			if index < len(values)-1 {
-				builder.WriteByte(',')
-			}
-
-			params[indexParamName] = value
-		}
-
-		delete(params, paramName)
-
-		count = end
+	query, err = prepareInList(query, params)
+	if err != nil {
+		return fmt.Errorf("could not prepare query for IN list: %w", err)
 	}
-
-	builder.WriteString(query[count:])
-	query = builder.String()
 
 	names := []any{}
 	for name, value := range params {

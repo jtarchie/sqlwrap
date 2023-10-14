@@ -2,6 +2,7 @@ package sqlwrap_test
 
 import (
 	"context"
+	"database/sql"
 
 	"github.com/jtarchie/sqlwrap"
 	. "github.com/onsi/ginkgo/v2"
@@ -14,17 +15,12 @@ var _ = Describe("Get", func() {
 	BeforeEach(func() {
 		var err error
 
-		client, err = sqlwrap.Open("sqlite3", ":memory:")
+		client, err = createClient()
 		Expect(err).NotTo(HaveOccurred())
+	})
 
-		_, err = client.Exec(`
-				CREATE TABLE people (
-					first_name TEXT,
-					last_name  TEXT,
-					email      TEXT
-				);
-				INSERT INTO people (first_name, last_name, email) VALUES ('Bob', 'Smith', 'bob@smith.com');
-			`)
+	AfterEach(func() {
+		err := client.Close()
 		Expect(err).NotTo(HaveOccurred())
 	})
 
@@ -78,6 +74,16 @@ var _ = Describe("Get", func() {
 				"email": []string{"bob@smith.com"},
 			},
 		)
+		Expect(err).NotTo(HaveOccurred())
+		Expect(firstName).To(Equal("Bob"))
+
+		row := client.QueryRowContext(
+			context.Background(),
+			"SELECT first_name FROM people WHERE email = :email",
+			sql.Named("email", "bob@smith.com"),
+		)
+
+		err = row.Scan(&firstName)
 		Expect(err).NotTo(HaveOccurred())
 		Expect(firstName).To(Equal("Bob"))
 	})

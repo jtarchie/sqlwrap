@@ -14,18 +14,12 @@ var _ = Describe("Select", func() {
 	BeforeEach(func() {
 		var err error
 
-		client, err = sqlwrap.Open("sqlite3", ":memory:")
+		client, err = createClient()
 		Expect(err).NotTo(HaveOccurred())
+	})
 
-		_, err = client.Exec(`
-				CREATE TABLE people (
-					first_name TEXT,
-					last_name  TEXT,
-					email      TEXT
-				);
-				INSERT INTO people (first_name, last_name, email) VALUES ('Bob', 'Smith', 'bob@smith.com');
-				INSERT INTO people (first_name, last_name, email) VALUES ('Jane', 'Smith', 'jane@smith.com');
-			`)
+	AfterEach(func() {
+		err := client.Close()
 		Expect(err).NotTo(HaveOccurred())
 	})
 

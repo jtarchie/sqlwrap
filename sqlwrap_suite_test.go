@@ -1,6 +1,7 @@
 package sqlwrap_test
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/jtarchie/sqlwrap"
@@ -26,3 +27,25 @@ var _ = Describe("SQLWrap", func() {
 		})
 	})
 })
+
+func createClient() (*sqlwrap.Client, error) {
+	client, err := sqlwrap.Open("sqlite3", ":memory:")
+	if err != nil {
+		return nil, fmt.Errorf("could not create client: %w", err)
+	}
+
+	_, err = client.Exec(`
+		CREATE TABLE people (
+			first_name TEXT,
+			last_name  TEXT,
+			email      TEXT
+		);
+		INSERT INTO people (first_name, last_name, email) VALUES ('Bob', 'Smith', 'bob@smith.com');
+		INSERT INTO people (first_name, last_name, email) VALUES ('Jane', 'Smith', 'jane@smith.com');
+	`)
+	if err != nil {
+		return nil, fmt.Errorf("could not execute: %w", err)
+	}
+
+	return client, nil
+}
